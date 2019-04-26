@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: api-deployment
+  name: api-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: alpine/socat
+        name: api
+        command: ["/bin/sh"]
+        args: ["-c", "socat - TCP-LISTEN:3333,fork,reuseaddr"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: api-service
+  name: api-service
+spec:
+  ports:
+  - name: "3333"
+    port: 3333
+    protocol: TCP
+    targetPort: 3333
+  selector:
+    app: api
+  type: ClusterIP
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-deployment
+  name: nginx-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        command: ["/bin/sh"]
+        args: ["-c", "apt-get -y update && apt-get -y install netcat iputils-ping net-tools && nginx -g 'daemon off;'"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-service
+  name: nginx-service
+spec:
+  ports:
+  - name: 80-80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 31111
+  selector:
+    app: nginx
+  type: NodePort
