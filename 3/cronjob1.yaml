@@ -1,0 +1,38 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  labels:
+    run: cronjob1
+  name: cronjob1
+spec:
+  concurrencyPolicy: Allow
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      parallelism: 2
+      template:
+        metadata:
+          creationTimestamp: null
+          labels:
+            run: cronjob1
+        spec:
+          volumes:
+            - name: cron-vol
+              persistentVolumeClaim:
+                claimName: task-pv-claim
+          containers:
+          - args:
+            - bash
+            - -c
+            - hostname >> /tmp/vol/storage
+            image: bash
+            name: cronjob1
+            resources: {}
+            volumeMounts:
+              - name: cron-vol
+                mountPath: /tmp/vol
+          restartPolicy: Never
+  schedule: '*/1 * * * *'
+  successfulJobsHistoryLimit: 4
