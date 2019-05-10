@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapi
+spec:
+  selector:
+    run: nginx
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  type: ClusterIP

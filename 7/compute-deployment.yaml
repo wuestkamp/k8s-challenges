@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: compute
+  name: compute
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: compute
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: compute
+    spec:
+      containers:
+      - image: busybox
+        name: compute
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 1d"]
+        resources: {}
+status: {}
